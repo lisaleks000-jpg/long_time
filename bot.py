@@ -101,7 +101,7 @@ CB_BACK_TO_MENU = "nav_menu"
 def main_menu_inline() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("🗺️ Карта Маршрута", callback_data=CB_MENU_MAP)],
+            [InlineKeyboardButton("🗺️ КАРТА МАРШРУТА", callback_data=CB_MENU_MAP)],
             [InlineKeyboardButton("▶️ Начать Экскурсию", callback_data=CB_MENU_START)],
             [InlineKeyboardButton("ℹ️ О проекте", callback_data=CB_MENU_ABOUT)],
         ]
