@@ -354,7 +354,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     if audio_path and audio_path.exists():
         with open(audio_path, "rb") as f:
-            await chat.send_audio(audio=f)
+            await chat.send_voice(voice=f)
         
         if audio_desc:
             await chat.send_message(text=audio_desc, parse_mode="Markdown")
@@ -380,7 +380,7 @@ async def send_point3_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if audio_path and audio_path.exists():
         with open(audio_path, "rb") as f:
-            await chat.send_audio(audio=f)
+            await chat.send_voice(voice=f)
         
         if audio_desc:
             await chat.send_message(text=audio_desc, parse_mode="Markdown")
@@ -405,7 +405,7 @@ async def send_point6_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if extra_audio and extra_audio.exists():
         with open(extra_audio, "rb") as f:
-            await chat.send_audio(audio=f)
+            await chat.send_voice(voice=f)
         
         if extra_desc:
             await chat.send_message(text=extra_desc, parse_mode="Markdown")
@@ -427,14 +427,14 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Отправляем первое аудио
     if AUDIO1.exists():
         with open(AUDIO1, "rb") as f:
-            await chat.send_audio(audio=f)
+            await chat.send_voice(voice=f)
     else:
         await chat.send_message("⚠️ Аудио 1 не найдено (assets/audio1.ogg)")
     
     # Отправляем второе аудио
     if AUDIO2.exists():
         with open(AUDIO2, "rb") as f:
-            await chat.send_audio(audio=f)
+            await chat.send_voice(voice=f)
     else:
         await chat.send_message("⚠️ Аудио 2 не найдено (assets/audio2.ogg)")
     
