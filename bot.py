@@ -76,17 +76,32 @@ AUDIO2 = ASSETS / "audio2.ogg"
 
 # ---- Структура точек маршрута ----
 POINTS = [
+    # ===== ЛОКАЦИЯ 1 (с двумя аудио) =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 1]\n\n[краткое описание как добраться]",
         "photo": ASSETS / "loc1_photo.jpg",
         "texts": [
-            "Первое сообщение с информацией о точке 1...",
-            "Второе сообщение с дополнительной информацией...",
-            "Третье сообщение (опционально)...",
+            # Текст 1 (перед первым аудио)
+            "Ленинград. Лето 1937 года. Это было давно.\n\n"
+            "Историческая справка — начало «Большого террора» - приказ НКВД № 00447 — установление категорий мер наказания.\n\n"
+            "Из приказа. Все репрессируемые кулаки, уголовники и др. антисоветские элементы разбиваются на две категории:\n"
+            "а) к первой категории относятся все наиболее враждебные из перечисленных выше элементов. Они подлежат немедленному аресту и РАССТРЕЛУ.\n"
+            "б) ко второй категории относятся все остальные менее активные, но все же враждебные элементы. Они подлежат аресту и заключению в лагеря на срок от 8 до 10 лет.",
+            
+            # Текст 2 (между аудио)
+            "«Реквием» Анны Ахматовой был написан в 1935-1940-е годы, период террора. Это поэма о скорби, о личной трагедии Анны Ахматовой, о трагедии каждой женщины.\n\n"
+            "В августе 1921 году по обвинению в «контрреволюционной деятельности» был арестован и расстрелян первый муж писательницы, Гумилев Николай Степанович. 30 сентября 1991 года посмертно реабилитирован, установлено, что уголовное дело было полностью сфальсифицировано.\n\n"
+            "В октябре 1935 год был совершен первый арест сына Анны Ахматовой, Льва Николаевича Гумилева, дело было прекращено в том же году. В сентябре 1938 году Лев Гумилев был осужден по обвинению в контрреволюционной террористической деятельности на 10 лет исправительно-трудового лагеря, срок сокращен до 5 лет ИТЛ. Последний арест Льва Гумилева произошел в ноябре 1949 года, за антисоветскую агитацию и террористические намерения он был осужден на 10 лет исправительно- трудовой деятельности.\n\n"
+            "Анна Ахматова провела 17 месяцев своей жизни в тюремных очередях, рядом с такими же матерями, женами и дочерьми.",
         ],
-        "audio": ASSETS / "loc1_audio.ogg",
-        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 1]",
+        # Два аудио для локации 1
+        "audio1": ASSETS / "loc1_audio1.ogg",
+        "audio1_description": "🎧 «Реквием» Анны Ахматовой (часть 1)",
+        "audio2": ASSETS / "loc1_audio2.ogg",
+        "audio2_description": "🎧 «Реквием» Анны Ахматовой (часть 2)",
     },
+    
+    # ===== ЛОКАЦИЯ 2 =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 2]\n\n[краткое описание как добраться]",
         "photo": ASSETS / "loc2_photo.jpg",
@@ -95,8 +110,10 @@ POINTS = [
             "Второе сообщение с дополнительной информацией...",
         ],
         "audio": ASSETS / "loc2_audio.ogg",
-        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 2]",
+        "audio_description": "🎧 История Тамары Габбе",
     },
+    
+    # ===== ЛОКАЦИЯ 3 (с кнопкой "узнать больше") =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 3]\n\n[краткое описание как добраться]",
         "photo": ASSETS / "loc3_photo.jpg",
@@ -106,8 +123,10 @@ POINTS = [
             "Третье сообщение (опционально)...",
         ],
         "audio": ASSETS / "loc3_audio.ogg",
-        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 3]",
+        "audio_description": "🎧 История Нины Маториной",
     },
+    
+    # ===== ЛОКАЦИЯ 4 (БЕЗ АУДИО) =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 4]\n\n[краткое описание как добраться]",
         "photo": ASSETS / "loc4_photo.jpg",
@@ -115,9 +134,11 @@ POINTS = [
             "Первое сообщение с информацией о точке 4...",
             "Второе сообщение с дополнительной информацией...",
         ],
-        "audio": None,  # Точка 4 — БЕЗ аудио
+        "audio": None,
         "audio_description": None,
     },
+    
+    # ===== ЛОКАЦИЯ 5 (БЕЗ АУДИО) =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 5]\n\n[краткое описание как добраться]",
         "photo": ASSETS / "loc5_photo.jpg",
@@ -126,9 +147,11 @@ POINTS = [
             "Второе сообщение с дополнительной информацией...",
             "Третье сообщение (опционально)...",
         ],
-        "audio": None,  # Точка 5 — БЕЗ аудио
+        "audio": None,
         "audio_description": None,
     },
+    
+    # ===== ЛОКАЦИЯ 6 (с двумя аудио и кнопкой) =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 6]\n\n[краткое описание как добраться]",
         "photo": ASSETS / "loc6_photo.jpg",
@@ -149,8 +172,8 @@ POINTS = [
             "Загородный проспект 11, но её удалось скрыться.",
         ],
         "audio": ASSETS / "loc6_audio.ogg",
-        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 6]",
-        "extra_audio": ASSETS / "loc6_voice.ogg",  # Голос Лидии Чуковской
+        "audio_description": "🎧 История Лидии Чуковской",
+        "extra_audio": ASSETS / "loc6_voice.ogg",
         "extra_audio_description": "🎧 Голос Лидии Чуковской",
     },
 ]
@@ -161,7 +184,7 @@ CB_SHOW_MAP = "show_map"
 CB_ABOUT = "about"
 CB_FEEDBACK = "feedback"
 
-CB_IM_HERE = "im_here"  # Кнопка "Я тут"
+CB_IM_HERE = "im_here"
 CB_NEXT = "nav_next"
 CB_RESTART = "restart_tour"
 CB_BACK_TO_MAP = "nav_map"
@@ -176,7 +199,7 @@ CB_HEAR_VOICE_YES = "hear_voice_yes"
 CB_HEAR_VOICE_NO = "hear_voice_no"
 
 # Вставьте сюда ваш Telegram username или ссылку для обратной связи
-FEEDBACK_URL = "https://t.me/lisaleksa"  # ← ЗАМЕНИТЕ!
+FEEDBACK_URL = "https://t.me/lisaleksa"
 
 # ---- Разметка кнопок ----
 
@@ -245,7 +268,7 @@ def _state(context: ContextTypes.DEFAULT_TYPE) -> dict:
     if "idx" not in context.user_data:
         context.user_data["idx"] = 0
     if "visited" not in context.user_data:
-        context.user_data["visited"] = set()  # type: ignore
+        context.user_data["visited"] = set()
     return context.user_data
 
 # ---- отправка карты ----
@@ -266,9 +289,7 @@ async def send_map(chat, reply_markup=None):
 
 # ---- ЭТАП 1: Показываем адрес + кнопка "Я тут" ----
 async def send_point_navigation(update: Update, context: ContextTypes.DEFAULT_TYPE, idx: int):
-    """
-    Отправляет только адрес точки и кнопку "Я тут"
-    """
+    """Отправляет только адрес точки и кнопку 'Я тут'"""
     if not (0 <= idx < len(POINTS)):
         return
     
@@ -290,10 +311,8 @@ async def send_point_navigation(update: Update, context: ContextTypes.DEFAULT_TY
 async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Отправляет контент точки после нажатия "Я тут":
-    1. Фото
-    2. Текстовые сообщения (2-3 штуки)
-    3. Аудио + описание (с условиями для точек 3 и 6)
-    4. Кнопки навигации
+    - Для локации 1: фото → текст1 → аудио1 → текст2 → аудио2 → навигация
+    - Для остальных: стандартная логика
     """
     st = _state(context)
     idx = int(st.get("idx", 0))
@@ -301,11 +320,55 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if not (0 <= idx < len(POINTS)):
         return
     
-    visited: Set[int] = st["visited"]  # type: ignore
+    visited: Set[int] = st["visited"]
     visited.add(idx)
 
     point = POINTS[idx]
     chat = update.effective_chat
+    
+    # ===== СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ЛОКАЦИИ 1 (индекс 0) =====
+    if idx == 0:
+        # 1. Фото
+        photo_path = point.get("photo")
+        if photo_path and photo_path.exists():
+            with open(photo_path, "rb") as f:
+                await chat.send_photo(photo=f)
+        
+        # 2. Текст 1
+        texts = point.get("texts", [])
+        if len(texts) > 0:
+            await chat.send_message(text=texts[0], parse_mode="Markdown")
+        
+        # 3. Аудио 1
+        audio1 = point.get("audio1")
+        audio1_desc = point.get("audio1_description")
+        if audio1 and audio1.exists():
+            with open(audio1, "rb") as f:
+                await chat.send_voice(voice=f)
+            if audio1_desc:
+                await chat.send_message(text=audio1_desc, parse_mode="Markdown")
+        
+        # 4. Текст 2
+        if len(texts) > 1:
+            await chat.send_message(text=texts[1], parse_mode="Markdown")
+        
+        # 5. Аудио 2
+        audio2 = point.get("audio2")
+        audio2_desc = point.get("audio2_description")
+        if audio2 and audio2.exists():
+            with open(audio2, "rb") as f:
+                await chat.send_voice(voice=f)
+            if audio2_desc:
+                await chat.send_message(text=audio2_desc, parse_mode="Markdown")
+        
+        # 6. Навигация
+        await chat.send_message(
+            "👇 Навигация:",
+            reply_markup=point_nav_inline(is_last=False)
+        )
+        return
+    
+    # ===== СТАНДАРТНАЯ ЛОГИКА ДЛЯ ОСТАЛЬНЫХ ЛОКАЦИЙ =====
     
     # 1. Отправляем фото
     photo_path = point.get("photo")
@@ -321,16 +384,15 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await chat.send_message(text=text, parse_mode="Markdown")
     
     # 3. СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ТОЧКИ 3 (индекс 2)
-    if idx == 2:  # Точка 3
-        # Спрашиваем "узнать больше?"
+    if idx == 2:
         await chat.send_message(
             "❓ Узнать больше о этом месте?",
             reply_markup=want_more_buttons()
         )
-        return  # НЕ отправляем аудио здесь! Оно отправится после нажатия "Да"
+        return
     
     # 3. СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ТОЧКИ 6 (индекс 5)
-    if idx == 5:  # Точка 6 (последняя)
+    if idx == 5:
         # Отправляем основное аудио
         audio_path = point.get("audio")
         audio_desc = point.get("audio_description")
@@ -346,7 +408,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
             "❓ Хотите услышать её голос?",
             reply_markup=hear_voice_buttons()
         )
-        return  # Не показываем навигацию
+        return
     
     # 3. Для всех остальных точек — отправляем аудио как обычно
     audio_path = point.get("audio")
@@ -372,9 +434,8 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def send_point3_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Отправляет аудио для точки 3 после нажатия 'Да'"""
     chat = update.effective_chat
-    point = POINTS[2]  # Точка 3 (индекс 2)
+    point = POINTS[2]
     
-    # Отправляем аудио
     audio_path = point.get("audio")
     audio_desc = point.get("audio_description")
     
@@ -387,19 +448,17 @@ async def send_point3_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await chat.send_message(f"⚠️ Аудио не найдено: {audio_path}")
     
-    # Показываем навигацию
     await chat.send_message(
         "👇 Навигация:",
-        reply_markup=point_nav_inline(is_last=False)  # Точка 3 не последняя
+        reply_markup=point_nav_inline(is_last=False)
     )
 
 # ---- Отправка дополнительного аудио для точки 6 после "Да" ----
 async def send_point6_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Отправляет дополнительное аудио (голос) для точки 6"""
     chat = update.effective_chat
-    point = POINTS[5]  # Точка 6 (индекс 5)
+    point = POINTS[5]
     
-    # Отправляем дополнительное аудио
     extra_audio = point.get("extra_audio")
     extra_desc = point.get("extra_audio_description")
     
@@ -412,7 +471,6 @@ async def send_point6_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await chat.send_message(f"⚠️ Аудио не найдено: {extra_audio}")
     
-    # Завершаем маршрут
     await chat.send_message(
         FINAL_MESSAGE,
         parse_mode="Markdown",
@@ -424,21 +482,18 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Отправляем 2 аудио + приветственный текст + меню"""
     chat = update.effective_chat
     
-    # Отправляем первое аудио
     if AUDIO1.exists():
         with open(AUDIO1, "rb") as f:
             await chat.send_voice(voice=f)
     else:
         await chat.send_message("⚠️ Аудио 1 не найдено (assets/audio1.ogg)")
     
-    # Отправляем второе аудио
     if AUDIO2.exists():
         with open(AUDIO2, "rb") as f:
             await chat.send_voice(voice=f)
     else:
         await chat.send_message("⚠️ Аудио 2 не найдено (assets/audio2.ogg)")
     
-    # Отправляем приветственное сообщение с меню
     await chat.send_message(
         WELCOME_TEXT,
         parse_mode="Markdown",
@@ -464,9 +519,7 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     data = q.data
 
-    # === ГЛАВНОЕ МЕНЮ ===
     if data == CB_START_TOUR:
-        # Начинаем экскурсию с точки 0 — показываем только адрес
         st = _state(context)
         st["idx"] = 0
         st["visited"] = set()
@@ -482,52 +535,40 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=main_menu_inline()
         )
     
-    # === КНОПКА "Я ТУТ" ===
     elif data == CB_IM_HERE:
-        # Пользователь на месте — показываем контент точки
         await send_point_content(update, context)
     
-    # === КНОПКИ "УЗНАТЬ БОЛЬШЕ?" ДЛЯ ТОЧКИ 3 ===
     elif data == CB_WANT_MORE:
-        # Пользователь хочет узнать больше — отправляем аудио
         await send_point3_audio(update, context)
     
     elif data == CB_SKIP_AUDIO:
-        # Пользователь пропускает — сразу на следующую точку
         st = _state(context)
         idx = int(st.get("idx", 0))
         await send_point_navigation(update, context, idx + 1)
     
-    # === КНОПКИ "ХОТИТЕ УСЛЫШАТЬ ЕЁ ГОЛОС?" ДЛЯ ТОЧКИ 6 ===
     elif data == CB_HEAR_VOICE_YES:
-        # Пользователь хочет услышать голос — отправляем дополнительное аудио
         await send_point6_voice(update, context)
     
     elif data == CB_HEAR_VOICE_NO:
-        # Пользователь пропускает — завершаем маршрут
         await q.message.reply_text(
             FINAL_MESSAGE,
             parse_mode="Markdown",
             reply_markup=final_menu_inline()
         )
     
-    # === НАВИГАЦИЯ ПО ТОЧКАМ ===
     elif data == CB_NEXT:
         st = _state(context)
         idx = int(st.get("idx", 0))
         if idx >= len(POINTS) - 1:
-            # Завершение маршрута
             await q.message.reply_text(
                 FINAL_MESSAGE,
                 parse_mode="Markdown",
                 reply_markup=final_menu_inline()
             )
         else:
-            # Следующая точка — показываем адрес
             await send_point_navigation(update, context, idx + 1)
     
     elif data == CB_RESTART:
-        # Пройти маршрут заново
         st = _state(context)
         st["idx"] = 0
         st["visited"] = set()
@@ -542,7 +583,6 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=main_menu_inline()
         )
 
-# На всякий случай: любой текст — показываем меню
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🏠 Главное меню:",
@@ -557,7 +597,6 @@ def main():
     app.add_handler(CallbackQueryHandler(on_callback))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
     
-    # Webhook вместо polling
     app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
