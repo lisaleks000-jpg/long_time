@@ -337,7 +337,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
         
         if audio_path and audio_path.exists():
             with open(audio_path, "rb") as f:
-                await chat.send_audio(audio=f)
+                await chat.send_voice(voice=f)
             if audio_desc:
                 await chat.send_message(text=audio_desc, parse_mode="Markdown")
         
