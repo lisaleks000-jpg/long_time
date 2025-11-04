@@ -26,7 +26,7 @@ if not TELEGRAM_TOKEN:
     raise RuntimeError("Переменная окружения TELEGRAM_TOKEN не найдена. Проверь .env")
 
 # URL вашего приложения на Render (замените после создания!)
-WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://your-app-name.onrender.com")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://long-time.onrender.com")
 PORT = int(os.getenv("PORT", 8080))
 
 # ---- Контент (правь под себя) ----
@@ -53,6 +53,10 @@ FINAL_MESSAGE = (
 ASSETS = Path("assets")
 MAP_IMAGE = ASSETS / "map.jpg"
 MAP_CAPTION = "Карта маршрута: 4 точки памяти. Вы можете начать с первой — бот проведёт вас шаг за шагом."
+
+# Аудио файлы для приветствия
+AUDIO1 = ASSETS / "audio1.ogg"
+AUDIO2 = ASSETS / "audio2.ogg"
 
 # 4 точки (заглушки текста и имена файлов; положи фото в assets/)
 POINTS = [
@@ -93,11 +97,50 @@ CB_MENU_MAP = "menu_map"
 CB_MENU_START = "menu_start"
 CB_MENU_ABOUT = "menu_about"
 
-CB_NEXT = "nav_next"
-CB_BACK_TO_MAP = "nav_map"
+# Новые callback для первого меню
+CB_AUDIO_INFO = "audio_info"
+CB_FEEDBACK = "feedback"
+CB_PROBLEMS = "problems"
+
+# Callback для подменю
+CB_START_TOUR = "start_tour"
+CB_WRITE_US = "write_us"
 CB_BACK_TO_MENU = "nav_menu"
 
+CB_NEXT = "nav_next"
+CB_BACK_TO_MAP = "nav_map"
+
 # ---- Разметка кнопок ----
+
+# Первое меню после /start
+def welcome_menu_inline() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("🎧 Аудио", callback_data=CB_AUDIO_INFO)],
+            [InlineKeyboardButton("💬 Обратная связь", callback_data=CB_FEEDBACK)],
+            [InlineKeyboardButton("❓ Возникли проблемы?", callback_data=CB_PROBLEMS)],
+        ]
+    )
+
+# Подменю для "Аудио"
+def audio_submenu_inline() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("▶️ Начать экскурсию", callback_data=CB_START_TOUR)],
+            [InlineKeyboardButton("↩️ Вернуться в меню", callback_data=CB_BACK_TO_MENU)],
+        ]
+    )
+
+# Подменю для "Обратная связь"
+def feedback_submenu_inline() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("✍️ Написать нам", callback_data=CB_WRITE_US)],
+            [InlineKeyboardButton("↩️ Вернуться в меню", callback_data=CB_BACK_TO_MENU)],
+        ]
+    )
+
+# Главное меню (старое, оставляем для совместимости)
 def main_menu_inline() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
@@ -175,16 +218,32 @@ async def send_point(update: Update, context: ContextTypes.DEFAULT_TYPE, idx: in
 
 # ---- хэндлеры команд ----
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "Готовы начать путь? Вы можете открыть карту, начать маршрут или прочитать о проекте.",
-        reply_markup=main_menu_inline(),
-    )
+    """Отправляем 2 аудио + текст с меню"""
+    chat = update.effective_chat
+    
+    # Отправляем первое аудио
+    if AUDIO1.exists():
+        with open(AUDIO1, "rb") as f:
+            await chat.send_audio(audio=f)
+    else:
+        await chat.send_message("⚠️ Аудио 1 не найдено (assets/audio1.ogg)")
+    
+    # Отправляем второе аудио
+    if AUDIO2.exists():
+        with open(AUDIO2, "rb") as f:
+            await chat.send_audio(audio=f)
+    else:
+        await chat.send_message("⚠️ Аудио 2 не найдено (assets/audio2.ogg)")
+    
+    # Отправляем приветственное сообщение с меню
+    welcome_text = "Готовы начать путь? Выберите один из вариантов:"
+    await chat.send_message(welcome_text, reply_markup=welcome_menu_inline())
 
 async def cmd_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Главное меню:", reply_markup=main_menu_inline())
+    await update.message.reply_text("Главное меню:", reply_markup=welcome_menu_inline())
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(HELP_TEXT, reply_markup=main_menu_inline())
+    await update.message.reply_text(HELP_TEXT, reply_markup=welcome_menu_inline())
 
 # ---- хэндлеры кнопок ----
 async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -192,7 +251,49 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     data = q.data
 
-    if data == CB_MENU_MAP:
+    # === ПЕРВОЕ МЕНЮ ===
+    if data == CB_AUDIO_INFO:
+        await q.message.reply_text(
+            "Не забудь наушники, некоторые голоса долго ждали, чтобы быть услышанными",
+            reply_markup=audio_submenu_inline()
+        )
+    
+    elif data == CB_FEEDBACK:
+        await q.message.reply_text(
+            "Мы будем рады, если ты захочешь поделиться своими мыслями",
+            reply_markup=feedback_submenu_inline()
+        )
+    
+    elif data == CB_PROBLEMS:
+        await q.message.reply_text(
+            "Попробуй перезагрузить",
+            reply_markup=welcome_menu_inline()
+        )
+    
+    # === ПОДМЕНЮ ===
+    elif data == CB_START_TOUR:
+        # Начинаем экскурсию с точки 0
+        st = _state(context)
+        st["idx"] = 0
+        st["visited"] = set()
+        await send_point(update, context, 0)
+    
+    elif data == CB_WRITE_US:
+        # Здесь можно добавить ссылку на форму или попросить написать сообщение
+        await q.message.reply_text(
+            "Напишите нам: [ваш email или ссылка на форму]\n\n"
+            "Или отправьте сообщение прямо здесь, и мы его получим.",
+            reply_markup=welcome_menu_inline()
+        )
+    
+    elif data == CB_BACK_TO_MENU:
+        await q.message.reply_text(
+            "Главное меню:",
+            reply_markup=welcome_menu_inline()
+        )
+    
+    # === СТАРЫЕ КНОПКИ (оставляем для совместимости) ===
+    elif data == CB_MENU_MAP:
         await send_map(q.message.chat, reply_markup=main_menu_inline())
 
     elif data == CB_MENU_START:
@@ -208,19 +309,16 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         st = _state(context)
         idx = int(st.get("idx", 0))
         if idx >= len(POINTS) - 1:
-            await q.message.reply_text(FINAL_MESSAGE, reply_markup=main_menu_inline())
+            await q.message.reply_text(FINAL_MESSAGE, reply_markup=welcome_menu_inline())
         else:
             await send_point(update, context, idx + 1)
 
     elif data == CB_BACK_TO_MAP:
         await send_map(q.message.chat, reply_markup=main_menu_inline())
 
-    elif data == CB_BACK_TO_MENU:
-        await q.message.reply_text("Главное меню:", reply_markup=main_menu_inline())
-
 # На всякий случай: любой текст — показываем меню
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Главное меню:", reply_markup=main_menu_inline())
+    await update.message.reply_text("Главное меню:", reply_markup=welcome_menu_inline())
 
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
