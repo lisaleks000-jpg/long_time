@@ -43,13 +43,13 @@ ABOUT_TEXT = (
     "📍 *О проекте*\n\n"
     "Этот маршрут создан, чтобы напомнить о женщинах, чьи истории были стёрты репрессиями. "
     "Мы проходим мимо этих мест каждый день, но редко задумываемся о том, что здесь происходило.\n\n"
-    "Маршрут включает 9 домов Санкт-Петербурга\n\n"
+    "Маршрут включает 6 точек в Санкт-Петербурге.\n\n"
     "Проект создан [кем?]."
 )
 
 HELP_TEXT = (
     "ℹ️ *Как пользоваться ботом:*\n\n"
-    "• *Начать экскурсию* — бот проведёт вас последовательно по 9 точкам\n"
+    "• *Начать экскурсию* — бот проведёт вас последовательно по 6 точкам\n"
     "• *Карта маршрута* — посмотрите все точки на карте\n"
     "• *О проекте* — узнайте больше о замысле\n"
     "• *Обратная связь* — поделитесь впечатлениями\n\n"
@@ -66,7 +66,7 @@ ASSETS = Path("assets")
 MAP_IMAGE = ASSETS / "map.jpg"
 MAP_CAPTION = (
     "🗺️ *Карта маршрута*\n\n"
-    "9 точек памяти в Санкт-Петербурге. "
+    "6 точек памяти в Санкт-Петербурге. "
     "Вы можете начать с первой — бот проведёт вас шаг за шагом."
 )
 
@@ -76,8 +76,9 @@ AUDIO2 = ASSETS / "audio2.ogg"
 
 # ---- Структура точек маршрута ----
 POINTS = [
-    # ===== ЛОКАЦИЯ 1 (БЕЗ навигационного фото, с двумя аудио) =====
+    # ===== ЛОКАЦИЯ 1 (БЕЗ навигации, с двумя аудио) =====
     {
+        # НЕТ navigation и nav_photo для первой локации!
         "photo": ASSETS / "loc1_photo.jpg",  # Фото Анны Ахматовой
         "texts": [
             # Текст 1 (перед первым аудио)
@@ -102,8 +103,8 @@ POINTS = [
     # ===== ЛОКАЦИЯ 2 =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 2]\n\n[краткое описание как добраться]",
-        "nav_photo": ASSETS / "loc2_nav.jpg",  # Навигационное фото
-        "photo": ASSETS / "loc2_photo.jpg",     # Фото Тамары Габбе
+        "nav_photo": ASSETS / "loc2_nav.jpg",
+        "photo": ASSETS / "loc2_photo.jpg",
         "texts": [
             "Первое сообщение с информацией о точке 2...",
             "Второе сообщение с дополнительной информацией...",
@@ -115,8 +116,8 @@ POINTS = [
     # ===== ЛОКАЦИЯ 3 (с кнопкой "узнать больше") =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 3]\n\n[краткое описание как добраться]",
-        "nav_photo": ASSETS / "loc3_nav.jpg",  # Навигационное фото
-        "photo": ASSETS / "loc3_photo.jpg",     # Фото Нины Маториной
+        "nav_photo": ASSETS / "loc3_nav.jpg",
+        "photo": ASSETS / "loc3_photo.jpg",
         "texts": [
             "Первое сообщение с информацией о точке 3...",
             "Второе сообщение с дополнительной информацией...",
@@ -129,8 +130,8 @@ POINTS = [
     # ===== ЛОКАЦИЯ 4 (БЕЗ АУДИО) =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 4]\n\n[краткое описание как добраться]",
-        "nav_photo": ASSETS / "loc4_nav.jpg",  # Навигационное фото
-        "photo": ASSETS / "loc4_photo.jpg",     # Фото героини
+        "nav_photo": ASSETS / "loc4_nav.jpg",
+        "photo": ASSETS / "loc4_photo.jpg",
         "texts": [
             "Первое сообщение с информацией о точке 4...",
             "Второе сообщение с дополнительной информацией...",
@@ -142,8 +143,8 @@ POINTS = [
     # ===== ЛОКАЦИЯ 5 (БЕЗ АУДИО, БЕЗ ФОТО ГЕРОИНИ) =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 5]\n\n[краткое описание как добраться]",
-        "nav_photo": ASSETS / "loc5_nav.jpg",  # Навигационное фото
-        "photo": None,  # НЕТ фото героини!
+        "nav_photo": ASSETS / "loc5_nav.jpg",
+        "photo": None,
         "texts": [
             "Первое сообщение с информацией о точке 5...",
             "Второе сообщение с дополнительной информацией...",
@@ -156,8 +157,8 @@ POINTS = [
     # ===== ЛОКАЦИЯ 6 (с двумя аудио и кнопкой) =====
     {
         "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 6]\n\n[краткое описание как добраться]",
-        "nav_photo": ASSETS / "loc6_nav.jpg",  # Навигационное фото
-        "photo": ASSETS / "loc6_photo.jpg",     # Фото Лидии Чуковской
+        "nav_photo": ASSETS / "loc6_nav.jpg",
+        "photo": ASSETS / "loc6_photo.jpg",
         "texts": [
             "Лидия Чуковская родилась 11/24 марта 1907 года в Петербурге в семье писателей Корнея Чуковского. "
             "Лидия Корнеевна получила прекрасное образование в частной женской гимназии Таганцевой, позднее в 15-ой единой "
@@ -193,11 +194,9 @@ CB_RESTART = "restart_tour"
 CB_BACK_TO_MAP = "nav_map"
 CB_BACK_TO_MENU = "nav_menu"
 
-# Для точки 3 — "узнать больше"
 CB_WANT_MORE = "want_more_yes"
 CB_SKIP_AUDIO = "skip_audio_no"
 
-# Для точки 6 — "услышать её голос"
 CB_HEAR_VOICE_YES = "hear_voice_yes"
 CB_HEAR_VOICE_NO = "hear_voice_no"
 
@@ -206,7 +205,6 @@ FEEDBACK_URL = "https://t.me/lisaleksa"
 # ---- Разметка кнопок ----
 
 def main_menu_inline() -> InlineKeyboardMarkup:
-    """Главное меню — 4 кнопки"""
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("▶️ Начать экскурсию", callback_data=CB_START_TOUR)],
@@ -217,7 +215,6 @@ def main_menu_inline() -> InlineKeyboardMarkup:
     )
 
 def im_here_button() -> InlineKeyboardMarkup:
-    """Кнопка 'Я тут' — показывается после адреса"""
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("✅ Я тут", callback_data=CB_IM_HERE)],
@@ -227,7 +224,6 @@ def im_here_button() -> InlineKeyboardMarkup:
     )
 
 def want_more_buttons() -> InlineKeyboardMarkup:
-    """Кнопки 'узнать больше?' для точки 3"""
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("✅ Да", callback_data=CB_WANT_MORE)],
@@ -236,7 +232,6 @@ def want_more_buttons() -> InlineKeyboardMarkup:
     )
 
 def hear_voice_buttons() -> InlineKeyboardMarkup:
-    """Кнопки 'хотите услышать её голос?' для точки 6"""
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("✅ Да, хочу услышать", callback_data=CB_HEAR_VOICE_YES)],
@@ -245,7 +240,6 @@ def hear_voice_buttons() -> InlineKeyboardMarkup:
     )
 
 def point_nav_inline(is_last: bool) -> InlineKeyboardMarkup:
-    """Навигация после просмотра точки"""
     first_row_text = "✅ Завершить маршрут" if is_last else "Следующая точка →"
     return InlineKeyboardMarkup(
         [
@@ -256,7 +250,6 @@ def point_nav_inline(is_last: bool) -> InlineKeyboardMarkup:
     )
 
 def final_menu_inline() -> InlineKeyboardMarkup:
-    """Меню после завершения маршрута"""
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("💬 Оставить отзыв", url=FEEDBACK_URL)],
@@ -265,7 +258,6 @@ def final_menu_inline() -> InlineKeyboardMarkup:
         ]
     )
 
-# ---- состояние пользователя ----
 def _state(context: ContextTypes.DEFAULT_TYPE) -> dict:
     if "idx" not in context.user_data:
         context.user_data["idx"] = 0
@@ -273,7 +265,6 @@ def _state(context: ContextTypes.DEFAULT_TYPE) -> dict:
         context.user_data["visited"] = set()
     return context.user_data
 
-# ---- отправка карты ----
 async def send_map(chat, reply_markup=None):
     if MAP_IMAGE.exists():
         with open(MAP_IMAGE, "rb") as f:
@@ -301,33 +292,35 @@ async def send_point_navigation(update: Update, context: ContextTypes.DEFAULT_TY
     point = POINTS[idx]
     chat = update.effective_chat
     
+    # ===== СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ЛОКАЦИИ 1 (индекс 0) =====
+    if idx == 0:
+        # Для первой локации сразу показываем контент (без навигации)
+        await send_point_content(update, context)
+        return
+    
+    # ===== ДЛЯ ОСТАЛЬНЫХ ЛОКАЦИЙ =====
     progress = f"\n\n_Точка {idx + 1} из {len(POINTS)}_"
     
-    # Если есть навигационное фото — отправляем его с текстом
     nav_photo = point.get("nav_photo")
+    navigation_text = point.get("navigation", "📍 Следующая точка")
+    
     if nav_photo and nav_photo.exists():
         with open(nav_photo, "rb") as f:
             await chat.send_photo(
                 photo=f,
-                caption=point["navigation"] + progress,
+                caption=navigation_text + progress,
                 parse_mode="Markdown",
                 reply_markup=im_here_button()
             )
     else:
-        # Если нет навигационного фото — просто текст
         await chat.send_message(
-            text=point["navigation"] + progress,
+            text=navigation_text + progress,
             parse_mode="Markdown",
             reply_markup=im_here_button()
         )
 
-# ---- ЭТАП 2: После "Я тут" показываем всю информацию ----
+# ---- ЭТАП 2: После "Я тут" (или сразу для локации 1) показываем всю информацию ----
 async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Отправляет контент точки после нажатия "Я тут":
-    - Для локации 1: фото → текст1 → аудио1 → текст2 → аудио2 → навигация
-    - Для остальных: стандартная логика
-    """
     st = _state(context)
     idx = int(st.get("idx", 0))
     
@@ -342,18 +335,15 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     # ===== СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ЛОКАЦИИ 1 (индекс 0) =====
     if idx == 0:
-        # 1. Фото героини
         photo_path = point.get("photo")
         if photo_path and photo_path.exists():
             with open(photo_path, "rb") as f:
                 await chat.send_photo(photo=f)
         
-        # 2. Текст 1
         texts = point.get("texts", [])
         if len(texts) > 0:
             await chat.send_message(text=texts[0], parse_mode="Markdown")
         
-        # 3. Аудио 1
         audio1 = point.get("audio1")
         audio1_desc = point.get("audio1_description")
         if audio1 and audio1.exists():
@@ -362,11 +352,9 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
             if audio1_desc:
                 await chat.send_message(text=audio1_desc, parse_mode="Markdown")
         
-        # 4. Текст 2
         if len(texts) > 1:
             await chat.send_message(text=texts[1], parse_mode="Markdown")
         
-        # 5. Аудио 2
         audio2 = point.get("audio2")
         audio2_desc = point.get("audio2_description")
         if audio2 and audio2.exists():
@@ -375,7 +363,6 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
             if audio2_desc:
                 await chat.send_message(text=audio2_desc, parse_mode="Markdown")
         
-        # 6. Навигация
         await chat.send_message(
             "👇 Навигация:",
             reply_markup=point_nav_inline(is_last=False)
@@ -384,7 +371,6 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     # ===== СТАНДАРТНАЯ ЛОГИКА ДЛЯ ОСТАЛЬНЫХ ЛОКАЦИЙ =====
     
-    # 1. Отправляем фото героини (если есть)
     photo_path = point.get("photo")
     if photo_path and photo_path.exists():
         with open(photo_path, "rb") as f:
@@ -392,12 +378,10 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
     elif photo_path:
         await chat.send_message(f"⚠️ Фото не найдено: {photo_path}")
     
-    # 2. Отправляем текстовые сообщения
     texts: List[str] = point.get("texts", [])
     for text in texts:
         await chat.send_message(text=text, parse_mode="Markdown")
     
-    # 3. СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ТОЧКИ 3 (индекс 2)
     if idx == 2:
         await chat.send_message(
             "❓ Узнать больше о этом месте?",
@@ -405,9 +389,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
         return
     
-    # 3. СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ТОЧКИ 6 (индекс 5)
     if idx == 5:
-        # Отправляем основное аудио
         audio_path = point.get("audio")
         audio_desc = point.get("audio_description")
         
@@ -417,14 +399,12 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
             if audio_desc:
                 await chat.send_message(text=audio_desc, parse_mode="Markdown")
         
-        # Спрашиваем про голос Лидии
         await chat.send_message(
             "❓ Хотите услышать её голос?",
             reply_markup=hear_voice_buttons()
         )
         return
     
-    # 3. Для всех остальных точек — отправляем аудио как обычно
     audio_path = point.get("audio")
     audio_desc = point.get("audio_description")
     
@@ -437,16 +417,13 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
     elif audio_path:
         await chat.send_message(f"⚠️ Аудио не найдено: {audio_path}")
     
-    # 4. Кнопки навигации
     is_last = (idx == len(POINTS) - 1)
     await chat.send_message(
         "👇 Навигация:",
         reply_markup=point_nav_inline(is_last),
     )
 
-# ---- Отправка аудио для точки 3 после "Да" ----
 async def send_point3_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Отправляет аудио для точки 3 после нажатия 'Да'"""
     chat = update.effective_chat
     point = POINTS[2]
     
@@ -467,9 +444,7 @@ async def send_point3_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=point_nav_inline(is_last=False)
     )
 
-# ---- Отправка дополнительного аудио для точки 6 после "Да" ----
 async def send_point6_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Отправляет дополнительное аудио (голос) для точки 6"""
     chat = update.effective_chat
     point = POINTS[5]
     
@@ -491,9 +466,7 @@ async def send_point6_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=final_menu_inline()
     )
 
-# ---- хэндлеры команд ----
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Отправляем 2 аудио + приветственный текст + меню"""
     chat = update.effective_chat
     
     if AUDIO1.exists():
@@ -527,7 +500,6 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=main_menu_inline()
     )
 
-# ---- хэндлеры кнопок ----
 async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
