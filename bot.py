@@ -1,6 +1,6 @@
 # bot_webhook.py — версия для webhook (Render)
 from pathlib import Path
-from typing import Set
+from typing import Set, List, Optional
 
 from telegram import (
     Update,
@@ -25,137 +25,184 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 if not TELEGRAM_TOKEN:
     raise RuntimeError("Переменная окружения TELEGRAM_TOKEN не найдена. Проверь .env")
 
-# URL вашего приложения на Render (замените после создания!)
+# URL вашего приложения на Render
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://long-time.onrender.com")
 PORT = int(os.getenv("PORT", 8080))
 
-# ---- Контент (правь под себя) ----
+# ---- Контент ----
 PROJECT_NAME = "СПб: Женские истории репрессий"
+
+WELCOME_TEXT = (
+    "Добро пожаловать! Этот бот — короткая и бережная прогулка по Санкт-Петербургу.\n\n"
+    "Мы предлагаем 6 точек памяти о женщинах, пострадавших от репрессий. "
+    "Каждая точка — это место, факт и несколько строк, помогающих увидеть город иначе.\n\n"
+    "🎧 Не забудьте наушники — некоторые голоса долго ждали, чтобы быть услышанными."
+)
+
 ABOUT_TEXT = (
-    "Этот бот — короткая и бережная прогулка по Санкт-Петербургу. "
-    "Мы предлагаем 4 точки памяти о женщинах, пострадавших от репрессий. "
-    "Каждая точка — это место, факт и несколько строк, помогающих увидеть город иначе."
+    "📍 *О проекте*\n\n"
+    "Этот маршрут создан, чтобы напомнить о женщинах, чьи истории были стёрты репрессиями. "
+    "Мы проходим мимо этих мест каждый день, но редко задумываемся о том, что здесь происходило.\n\n"
+    "Маршрут включает 6 точек в Санкт-Петербурге. Каждая — это конкретная история, конкретная судьба.\n\n"
+    "Проект создан [название вашей организации/инициативы]."
 )
 
 HELP_TEXT = (
-    "Как пользоваться:\n"
-    "• Нажмите «Карта маршрута», чтобы увидеть все точки.\n"
-    "• «Начать экскурсию» проведёт вас последовательно по маршруту.\n"
-    "• «О проекте» — краткое описание замысла.\n\n"
+    "ℹ️ *Как пользоваться ботом:*\n\n"
+    "• *Начать экскурсию* — бот проведёт вас последовательно по 6 точкам\n"
+    "• *Карта маршрута* — посмотрите все точки на карте\n"
+    "• *О проекте* — узнайте больше о замысле\n"
+    "• *Обратная связь* — поделитесь впечатлениями\n\n"
     "Команды: /start, /menu, /help"
 )
 
 FINAL_MESSAGE = (
-    "Спасибо, что прошли маршрут. Память держится на конкретных историях — "
-    "иногда тихие знаки рядом с нами значат больше слов."
+    "Спасибо, что прошли маршрут. 🙏\n\n"
+    "Память держится на конкретных историях — иногда тихие знаки рядом с нами значат больше слов.\n\n"
+    "💬 *Поделитесь впечатлениями* — нам важно ваше мнение."
 )
 
 ASSETS = Path("assets")
 MAP_IMAGE = ASSETS / "map.jpg"
-MAP_CAPTION = "Карта маршрута: 4 точки памяти. Вы можете начать с первой — бот проведёт вас шаг за шагом."
+MAP_CAPTION = (
+    "🗺️ *Карта маршрута*\n\n"
+    "6 точек памяти в Санкт-Петербурге. "
+    "Вы можете начать с первой — бот проведёт вас шаг за шагом."
+)
 
 # Аудио файлы для приветствия
 AUDIO1 = ASSETS / "audio1.ogg"
 AUDIO2 = ASSETS / "audio2.ogg"
 
-# 4 точки (заглушки текста и имена файлов; положи фото в assets/)
+# ---- Структура точки маршрута ----
+# Каждая точка содержит:
+# - navigation: текст с адресом "Теперь тебе нужно добраться..."
+# - photo: путь к фото
+# - texts: список из 2-3 текстовых сообщений
+# - audio: путь к аудио (optional, для точек 4 и 5 = None)
+# - audio_description: описание аудио (optional)
+
 POINTS = [
     {
-        "title": "Точка 1 — Дом на …",
-        "text": (
-            "Краткий бережный текст (200–300 слов): что это за место, чья это история, "
-            "какие даты и факты связаны с репрессиями. Пиши спокойно и точно, без оценочных клише."
-        ),
-        "photos": [ASSETS / "p1_1.jpg", ASSETS / "p1_2.jpg"],
+        "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 1]\n\n[краткое описание как добраться]",
+        "photo": ASSETS / "loc1_photo.jpg",
+        "texts": [
+            "Первое сообщение с информацией о точке 1...",
+            "Второе сообщение с дополнительной информацией...",
+            "Третье сообщение (опционально)...",
+        ],
+        "audio": ASSETS / "loc1_audio.ogg",
+        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 1]",
     },
     {
-        "title": "Точка 2 — …",
-        "text": (
-            "Основной текст (200–300 слов). Хорошо, если будет небольшая цитата из документа или письма "
-            "— 1–2 строки, чтобы дать голос времени."
-        ),
-        "photos": [ASSETS / "p2_1.jpg"],
+        "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 2]\n\n[краткое описание как добраться]",
+        "photo": ASSETS / "loc2_photo.jpg",
+        "texts": [
+            "Первое сообщение с информацией о точке 2...",
+            "Второе сообщение с дополнительной информацией...",
+        ],
+        "audio": ASSETS / "loc2_audio.ogg",
+        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 2]",
     },
     {
-        "title": "Точка 3 — …",
-        "text": (
-            "Основной текст (200–300 слов). Можно мягко соотнести прошлое с сегодняшним видом места."
-        ),
-        "photos": [ASSETS / "p3_1.jpg"],
+        "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 3]\n\n[краткое описание как добраться]",
+        "photo": ASSETS / "loc3_photo.jpg",
+        "texts": [
+            "Первое сообщение с информацией о точке 3...",
+            "Второе сообщение с дополнительной информацией...",
+            "Третье сообщение (опционально)...",
+        ],
+        "audio": ASSETS / "loc3_audio.ogg",
+        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 3]",
     },
     {
-        "title": "Точка 4 — …",
-        "text": (
-            "Финальная точка (200–300 слов). Аккуратно подведи к ощущению общей памяти и уважения."
-        ),
-        "photos": [ASSETS / "p4_1.jpg"],
+        "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 4]\n\n[краткое описание как добраться]",
+        "photo": ASSETS / "loc4_photo.jpg",
+        "texts": [
+            "Первое сообщение с информацией о точке 4...",
+            "Второе сообщение с дополнительной информацией...",
+        ],
+        "audio": None,  # Точка 4 — БЕЗ аудио
+        "audio_description": None,
+    },
+    {
+        "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 5]\n\n[краткое описание как добраться]",
+        "photo": ASSETS / "loc5_photo.jpg",
+        "texts": [
+            "Первое сообщение с информацией о точке 5...",
+            "Второе сообщение с дополнительной информацией...",
+            "Третье сообщение (опционально)...",
+        ],
+        "audio": None,  # Точка 5 — БЕЗ аудио
+        "audio_description": None,
+    },
+    {
+        "navigation": "📍 Теперь тебе нужно добраться сюда – [адрес точки 6]\n\n[краткое описание как добраться]",
+        "photo": ASSETS / "loc6_photo.jpg",
+        "texts": [
+            "Первое сообщение с информацией о точке 6...",
+            "Второе сообщение с дополнительной информацией...",
+        ],
+        "audio": ASSETS / "loc6_audio.ogg",
+        "audio_description": "🎧 В этом аудио: [краткое описание содержания аудио для точки 6]",
     },
 ]
 
 # ---- callback_data для кнопок ----
-CB_MENU_MAP = "menu_map"
-CB_MENU_START = "menu_start"
-CB_MENU_ABOUT = "menu_about"
-
-# Новые callback для первого меню
-CB_AUDIO_INFO = "audio_info"
-CB_FEEDBACK = "feedback"
-CB_PROBLEMS = "problems"
-
-# Callback для подменю
 CB_START_TOUR = "start_tour"
-CB_WRITE_US = "write_us"
+CB_SHOW_MAP = "show_map"
+CB_ABOUT = "about"
+CB_FEEDBACK = "feedback"
+
+CB_IM_HERE = "im_here"  # Новая кнопка "Я тут"
+CB_NEXT = "nav_next"
+CB_RESTART = "restart_tour"
+CB_BACK_TO_MAP = "nav_map"
 CB_BACK_TO_MENU = "nav_menu"
 
-CB_NEXT = "nav_next"
-CB_BACK_TO_MAP = "nav_map"
+# Вставьте сюда ваш Telegram username или ссылку для обратной связи
+FEEDBACK_URL = "https://t.me/lisaleksa"  # ← ЗАМЕНИТЕ!
 
 # ---- Разметка кнопок ----
 
-# Первое меню после /start
-def welcome_menu_inline() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton("🎧 Аудио", callback_data=CB_AUDIO_INFO)],
-            [InlineKeyboardButton("💬 Обратная связь", callback_data=CB_FEEDBACK)],
-            [InlineKeyboardButton("❓ Возникли проблемы?", callback_data=CB_PROBLEMS)],
-        ]
-    )
-
-# Подменю для "Аудио"
-def audio_submenu_inline() -> InlineKeyboardMarkup:
+def main_menu_inline() -> InlineKeyboardMarkup:
+    """Главное меню — 4 кнопки"""
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("▶️ Начать экскурсию", callback_data=CB_START_TOUR)],
-            [InlineKeyboardButton("↩️ Вернуться в меню", callback_data=CB_BACK_TO_MENU)],
+            [InlineKeyboardButton("🗺️ Карта маршрута", callback_data=CB_SHOW_MAP)],
+            [InlineKeyboardButton("ℹ️ О проекте", callback_data=CB_ABOUT)],
+            [InlineKeyboardButton("💬 Обратная связь", url=FEEDBACK_URL)],
         ]
     )
 
-# Подменю для "Обратная связь"
-def feedback_submenu_inline() -> InlineKeyboardMarkup:
+def im_here_button() -> InlineKeyboardMarkup:
+    """Кнопка 'Я тут' — показывается после адреса"""
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("✍️ Написать нам", callback_data=CB_WRITE_US)],
-            [InlineKeyboardButton("↩️ Вернуться в меню", callback_data=CB_BACK_TO_MENU)],
-        ]
-    )
-
-# Главное меню (старое, оставляем для совместимости)
-def main_menu_inline() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton("🗺️ КАРТА МАРШРУТА", callback_data=CB_MENU_MAP)],
-            [InlineKeyboardButton("▶️ Начать Экскурсию", callback_data=CB_MENU_START)],
-            [InlineKeyboardButton("ℹ️ О проекте", callback_data=CB_MENU_ABOUT)],
+            [InlineKeyboardButton("✅ Я тут", callback_data=CB_IM_HERE)],
+            [InlineKeyboardButton("🗺️ Карта", callback_data=CB_BACK_TO_MAP)],
+            [InlineKeyboardButton("🏠 Главное меню", callback_data=CB_BACK_TO_MENU)],
         ]
     )
 
 def point_nav_inline(is_last: bool) -> InlineKeyboardMarkup:
-    first_row_text = "Завершить маршрут →" if is_last else "Следующая точка →"
+    """Навигация после просмотра точки"""
+    first_row_text = "✅ Завершить маршрут" if is_last else "Следующая точка →"
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton(first_row_text, callback_data=CB_NEXT)],
-            [InlineKeyboardButton("↩️ Вернуться к карте", callback_data=CB_BACK_TO_MAP)],
+            [InlineKeyboardButton("🗺️ Карта", callback_data=CB_BACK_TO_MAP)],
+            [InlineKeyboardButton("🏠 Главное меню", callback_data=CB_BACK_TO_MENU)],
+        ]
+    )
+
+def final_menu_inline() -> InlineKeyboardMarkup:
+    """Меню после завершения маршрута"""
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("💬 Оставить отзыв", url=FEEDBACK_URL)],
+            [InlineKeyboardButton("🔄 Пройти заново", callback_data=CB_RESTART)],
             [InlineKeyboardButton("🏠 Главное меню", callback_data=CB_BACK_TO_MENU)],
         ]
     )
@@ -172,53 +219,98 @@ def _state(context: ContextTypes.DEFAULT_TYPE) -> dict:
 async def send_map(chat, reply_markup=None):
     if MAP_IMAGE.exists():
         with open(MAP_IMAGE, "rb") as f:
-            await chat.send_photo(photo=f, caption=MAP_CAPTION, reply_markup=reply_markup or main_menu_inline())
+            await chat.send_photo(
+                photo=f, 
+                caption=MAP_CAPTION,
+                parse_mode="Markdown",
+                reply_markup=reply_markup or main_menu_inline()
+            )
     else:
-        await chat.send_message("ПОКА ТУТ НИЧЕГО НЕТ (assets/map.jpg).", reply_markup=reply_markup or main_menu_inline())
+        await chat.send_message(
+            "⚠️ Карта пока не загружена (assets/map.jpg)",
+            reply_markup=reply_markup or main_menu_inline()
+        )
 
-# ---- отправка точки ----
-async def send_point(update: Update, context: ContextTypes.DEFAULT_TYPE, idx: int):
+# ---- ЭТАП 1: Показываем адрес + кнопка "Я тут" ----
+async def send_point_navigation(update: Update, context: ContextTypes.DEFAULT_TYPE, idx: int):
+    """
+    Отправляет только адрес точки и кнопку "Я тут"
+    """
     if not (0 <= idx < len(POINTS)):
         return
+    
     st = _state(context)
     st["idx"] = idx
+
+    point = POINTS[idx]
+    chat = update.effective_chat
+    
+    # Отправляем навигацию с прогрессом
+    progress = f"\n\n_Точка {idx + 1} из {len(POINTS)}_"
+    await chat.send_message(
+        text=point["navigation"] + progress,
+        parse_mode="Markdown",
+        reply_markup=im_here_button()
+    )
+
+# ---- ЭТАП 2: После "Я тут" показываем всю информацию ----
+async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Отправляет контент точки после нажатия "Я тут":
+    1. Фото
+    2. Текстовые сообщения (2-3 штуки)
+    3. Аудио + описание (если есть)
+    4. Кнопки навигации
+    """
+    st = _state(context)
+    idx = int(st.get("idx", 0))
+    
+    if not (0 <= idx < len(POINTS)):
+        return
+    
     visited: Set[int] = st["visited"]  # type: ignore
     visited.add(idx)
 
-    p = POINTS[idx]
-    title = f"*{p['title']}*"
-    body = p["text"]
-    progress = f"\n\n_Прогресс: {len(visited)}/{len(POINTS)}_"
-
-    # текст точки
-    await update.effective_chat.send_message(
-        text=f"{title}\n\n{body}{progress}",
-        parse_mode="Markdown",
-    )
-
-    # фото (до 2 штук; если файла нет — пропускаем)
-    photos = [ph for ph in p.get("photos", [])[:2] if isinstance(ph, Path) and ph.exists()]
-    if photos:
-        if len(photos) == 1:
-            with open(photos[0], "rb") as f:
-                await update.effective_chat.send_photo(photo=f)
-        else:
-            # media group требует байты
-            media = []
-            for ph in photos:
-                with open(ph, "rb") as f:
-                    media.append(InputMediaPhoto(media=f.read()))
-            await update.effective_chat.send_media_group(media=media)
-
+    point = POINTS[idx]
+    chat = update.effective_chat
+    
+    # 1. Отправляем фото
+    photo_path = point.get("photo")
+    if photo_path and photo_path.exists():
+        with open(photo_path, "rb") as f:
+            await chat.send_photo(photo=f)
+    else:
+        await chat.send_message(f"⚠️ Фото не найдено: {photo_path}")
+    
+    # 2. Отправляем текстовые сообщения
+    texts: List[str] = point.get("texts", [])
+    for text in texts:
+        await chat.send_message(text=text, parse_mode="Markdown")
+    
+    # 3. Отправляем аудио + описание (если есть)
+    audio_path = point.get("audio")
+    audio_desc = point.get("audio_description")
+    
+    if audio_path and audio_path.exists():
+        with open(audio_path, "rb") as f:
+            await chat.send_audio(audio=f)
+        
+        # Отправляем описание аудио
+        if audio_desc:
+            await chat.send_message(text=audio_desc, parse_mode="Markdown")
+    elif audio_path:  # Аудио должно быть, но файла нет
+        await chat.send_message(f"⚠️ Аудио не найдено: {audio_path}")
+    
+    # 4. Кнопки навигации
     is_last = (idx == len(POINTS) - 1)
-    await update.effective_chat.send_message(
-        "Навигация по маршруту:",
+    await chat.send_message(
+        "👇 Навигация:",
         reply_markup=point_nav_inline(is_last),
     )
 
 # ---- хэндлеры команд ----
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Отправляем 2 аудио + текст с меню"""
+    """Отправляем 2 аудио + приветственный текст + меню"""
     chat = update.effective_chat
     
     # Отправляем первое аудио
@@ -236,14 +328,24 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await chat.send_message("⚠️ Аудио 2 не найдено (assets/audio2.ogg)")
     
     # Отправляем приветственное сообщение с меню
-    welcome_text = "Готовы начать путь? Выберите один из вариантов:"
-    await chat.send_message(welcome_text, reply_markup=welcome_menu_inline())
+    await chat.send_message(
+        WELCOME_TEXT,
+        parse_mode="Markdown",
+        reply_markup=main_menu_inline()
+    )
 
 async def cmd_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Главное меню:", reply_markup=welcome_menu_inline())
+    await update.message.reply_text(
+        "🏠 Главное меню:",
+        reply_markup=main_menu_inline()
+    )
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(HELP_TEXT, reply_markup=welcome_menu_inline())
+    await update.message.reply_text(
+        HELP_TEXT,
+        parse_mode="Markdown",
+        reply_markup=main_menu_inline()
+    )
 
 # ---- хэндлеры кнопок ----
 async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -251,74 +353,66 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     data = q.data
 
-    # === ПЕРВОЕ МЕНЮ ===
-    if data == CB_AUDIO_INFO:
-        await q.message.reply_text(
-            "Не забудь наушники, некоторые голоса долго ждали, чтобы быть услышанными",
-            reply_markup=audio_submenu_inline()
-        )
-    
-    elif data == CB_FEEDBACK:
-        await q.message.reply_text(
-            "Мы будем рады, если ты захочешь поделиться своими мыслями",
-            reply_markup=feedback_submenu_inline()
-        )
-    
-    elif data == CB_PROBLEMS:
-        await q.message.reply_text(
-            "Попробуй перезагрузить",
-            reply_markup=welcome_menu_inline()
-        )
-    
-    # === ПОДМЕНЮ ===
-    elif data == CB_START_TOUR:
-        # Начинаем экскурсию с точки 0
+    # === ГЛАВНОЕ МЕНЮ ===
+    if data == CB_START_TOUR:
+        # Начинаем экскурсию с точки 0 — показываем только адрес
         st = _state(context)
         st["idx"] = 0
         st["visited"] = set()
-        await send_point(update, context, 0)
+        await send_point_navigation(update, context, 0)
     
-    elif data == CB_WRITE_US:
-        # Здесь можно добавить ссылку на форму или попросить написать сообщение
-        await q.message.reply_text(
-            "Напишите нам: [ваш email или ссылка на форму]\n\n"
-            "Или отправьте сообщение прямо здесь, и мы его получим.",
-            reply_markup=welcome_menu_inline()
-        )
-    
-    elif data == CB_BACK_TO_MENU:
-        await q.message.reply_text(
-            "Главное меню:",
-            reply_markup=welcome_menu_inline()
-        )
-    
-    # === СТАРЫЕ КНОПКИ (оставляем для совместимости) ===
-    elif data == CB_MENU_MAP:
+    elif data == CB_SHOW_MAP:
         await send_map(q.message.chat, reply_markup=main_menu_inline())
-
-    elif data == CB_MENU_START:
-        st = _state(context)
-        st["idx"] = 0
-        st["visited"] = set()
-        await send_point(update, context, 0)
-
-    elif data == CB_MENU_ABOUT:
-        await q.message.reply_text(ABOUT_TEXT, reply_markup=main_menu_inline())
-
+    
+    elif data == CB_ABOUT:
+        await q.message.reply_text(
+            ABOUT_TEXT,
+            parse_mode="Markdown",
+            reply_markup=main_menu_inline()
+        )
+    
+    # === КНОПКА "Я ТУТ" ===
+    elif data == CB_IM_HERE:
+        # Пользователь на месте — показываем контент точки
+        await send_point_content(update, context)
+    
+    # === НАВИГАЦИЯ ПО ТОЧКАМ ===
     elif data == CB_NEXT:
         st = _state(context)
         idx = int(st.get("idx", 0))
         if idx >= len(POINTS) - 1:
-            await q.message.reply_text(FINAL_MESSAGE, reply_markup=welcome_menu_inline())
+            # Завершение маршрута
+            await q.message.reply_text(
+                FINAL_MESSAGE,
+                parse_mode="Markdown",
+                reply_markup=final_menu_inline()
+            )
         else:
-            await send_point(update, context, idx + 1)
-
+            # Следующая точка — показываем адрес
+            await send_point_navigation(update, context, idx + 1)
+    
+    elif data == CB_RESTART:
+        # Пройти маршрут заново
+        st = _state(context)
+        st["idx"] = 0
+        st["visited"] = set()
+        await send_point_navigation(update, context, 0)
+    
     elif data == CB_BACK_TO_MAP:
         await send_map(q.message.chat, reply_markup=main_menu_inline())
+    
+    elif data == CB_BACK_TO_MENU:
+        await q.message.reply_text(
+            "🏠 Главное меню:",
+            reply_markup=main_menu_inline()
+        )
 
 # На всякий случай: любой текст — показываем меню
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Главное меню:", reply_markup=welcome_menu_inline())
+    await update.message.reply_text(
+        "🏠 Главное меню:",
+        reply_markup=main_menu_inline()
+    )
 
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
