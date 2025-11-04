@@ -54,7 +54,7 @@ ASSETS = Path("assets")
 MAP_IMAGE = ASSETS / "map.jpg"
 MAP_CAPTION = "Карта маршрута: 4 точки памяти. Вы можете начать с первой — бот проведёт вас шаг за шагом."
 
-# 4 точки (заглушки текста и имена файлов; положи фото в assets/)
+# 4 точки (заглушки текста и имена файлов; положи фото в assets/, аудио в assets/audio/)
 POINTS = [
     {
         "title": "Точка 1 — Дом на …",
@@ -63,6 +63,7 @@ POINTS = [
             "какие даты и факты связаны с репрессиями. Пиши спокойно и точно, без оценочных клише."
         ),
         "photos": [ASSETS / "p1_1.jpg", ASSETS / "p1_2.jpg"],
+        "audio": ASSETS / "audio" / "p1.ogg",  # голосовое сообщение для точки 1
     },
     {
         "title": "Точка 2 — …",
@@ -71,6 +72,7 @@ POINTS = [
             "— 1–2 строки, чтобы дать голос времени."
         ),
         "photos": [ASSETS / "p2_1.jpg"],
+        "audio": ASSETS / "audio" / "p2.ogg",
     },
     {
         "title": "Точка 3 — …",
@@ -78,6 +80,7 @@ POINTS = [
             "Основной текст (200–300 слов). Можно мягко соотнести прошлое с сегодняшним видом места."
         ),
         "photos": [ASSETS / "p3_1.jpg"],
+        "audio": ASSETS / "audio" / "p3.ogg",
     },
     {
         "title": "Точка 4 — …",
@@ -85,6 +88,7 @@ POINTS = [
             "Финальная точка (200–300 слов). Аккуратно подведи к ощущению общей памяти и уважения."
         ),
         "photos": [ASSETS / "p4_1.jpg"],
+        "audio": ASSETS / "audio" / "p4.ogg",
     },
 ]
 
@@ -96,6 +100,7 @@ CB_MENU_ABOUT = "menu_about"
 CB_NEXT = "nav_next"
 CB_BACK_TO_MAP = "nav_map"
 CB_BACK_TO_MENU = "nav_menu"
+CB_PLAY_AUDIO = "play_audio"  # для прослушивания аудио
 
 # ---- Разметка кнопок ----
 def main_menu_inline() -> InlineKeyboardMarkup:
@@ -107,15 +112,22 @@ def main_menu_inline() -> InlineKeyboardMarkup:
         ]
     )
 
-def point_nav_inline(is_last: bool) -> InlineKeyboardMarkup:
+def point_nav_inline(is_last: bool, has_audio: bool = False) -> InlineKeyboardMarkup:
     first_row_text = "Завершить маршрут →" if is_last else "Следующая точка →"
-    return InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton(first_row_text, callback_data=CB_NEXT)],
-            [InlineKeyboardButton("↩️ Вернуться к карте", callback_data=CB_BACK_TO_MAP)],
-            [InlineKeyboardButton("🏠 Главное меню", callback_data=CB_BACK_TO_MENU)],
-        ]
-    )
+    buttons = []
+
+    # Кнопка прослушивания аудио (если есть)
+    if has_audio:
+        buttons.append([InlineKeyboardButton("🎧 Прослушать аудиоэкскурсию", callback_data=CB_PLAY_AUDIO)])
+
+    # Основные кнопки навигации
+    buttons.extend([
+        [InlineKeyboardButton(first_row_text, callback_data=CB_NEXT)],
+        [InlineKeyboardButton("↩️ Вернуться к карте", callback_data=CB_BACK_TO_MAP)],
+        [InlineKeyboardButton("🏠 Главное меню", callback_data=CB_BACK_TO_MENU)],
+    ])
+
+    return InlineKeyboardMarkup(buttons)
 
 # ---- состояние пользователя ----
 def _state(context: ContextTypes.DEFAULT_TYPE) -> dict:
@@ -168,9 +180,13 @@ async def send_point(update: Update, context: ContextTypes.DEFAULT_TYPE, idx: in
             await update.effective_chat.send_media_group(media=media)
 
     is_last = (idx == len(POINTS) - 1)
+    # Проверяем наличие аудиофайла
+    audio_path = p.get("audio")
+    has_audio = isinstance(audio_path, Path) and audio_path.exists()
+
     await update.effective_chat.send_message(
         "Навигация по маршруту:",
-        reply_markup=point_nav_inline(is_last),
+        reply_markup=point_nav_inline(is_last, has_audio=has_audio),
     )
 
 # ---- хэндлеры команд ----
@@ -217,6 +233,22 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif data == CB_BACK_TO_MENU:
         await q.message.reply_text("Главное меню:", reply_markup=main_menu_inline())
+
+    elif data == CB_PLAY_AUDIO:
+        # Отправляем голосовое сообщение для текущей точки
+        st = _state(context)
+        idx = int(st.get("idx", 0))
+        if 0 <= idx < len(POINTS):
+            p = POINTS[idx]
+            audio_path = p.get("audio")
+            if isinstance(audio_path, Path) and audio_path.exists():
+                with open(audio_path, "rb") as audio_file:
+                    await q.message.reply_voice(
+                        voice=audio_file,
+                        caption=f"🎧 Аудиоэкскурсия: {p['title']}"
+                    )
+            else:
+                await q.message.reply_text("К сожалению, аудиофайл для этой точки недоступен.")
 
 # На всякий случай: любой текст — показываем меню
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
