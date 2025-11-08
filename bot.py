@@ -469,7 +469,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
         texts = point.get("texts", [])
         if len(texts) > 0:
             await chat.send_message(text=texts[0], parse_mode="Markdown")
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
 
         audio1 = point.get("audio1")
         audio1_desc = point.get("audio1_description")
@@ -510,7 +510,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await asyncio.sleep(1)
     elif photo_path:
         await chat.send_message(f"⚠️ Фото не найдено: {photo_path}")
-        await asyncio.sleep(1)
+        await asyncio.sleep(5)
 
     texts: List[str] = point.get("texts", [])
     for text in texts:
@@ -577,7 +577,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
     is_last = (idx == len(POINTS) - 1)
     if is_last:
         await asyncio.sleep(5)  # Пауза 5 секунд перед финальным сообщением
-        nav_text = "Это была последняя точка нашего маршрута, но у нас еще есть что рассказать"
+        nav_text = "Это была последняя точка нашего маршрута, но у нас еще есть, что рассказать"
     else:
         nav_text = "👇 Навигация:"
 
@@ -634,7 +634,7 @@ async def send_optional_audio(update: Update, context: ContextTypes.DEFAULT_TYPE
     is_last = (idx == len(POINTS) - 1)
     if is_last:
         await asyncio.sleep(5)  # Пауза 5 секунд перед финальным сообщением
-        nav_text = "Это была последняя точка нашего маршрута, но у нас еще есть что рассказать"
+        nav_text = "Это была последняя точка нашего маршрута, но у нас еще есть, что рассказать"
     else:
         nav_text = "👇 Навигация:"
 
