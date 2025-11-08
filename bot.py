@@ -575,8 +575,13 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     # Навигация
     is_last = (idx == len(POINTS) - 1)
+    if is_last:
+        nav_text = "Это была последняя точка нашего маршрута, но у нас еще есть что рассказать"
+    else:
+        nav_text = "👇 Навигация:"
+
     await chat.send_message(
-        "👇 Навигация:",
+        nav_text,
         reply_markup=point_nav_inline(is_last),
     )
 
@@ -626,8 +631,13 @@ async def send_optional_audio(update: Update, context: ContextTypes.DEFAULT_TYPE
     st["waiting_optional"] = False
 
     is_last = (idx == len(POINTS) - 1)
+    if is_last:
+        nav_text = "Это была последняя точка нашего маршрута, но у нас еще есть что рассказать"
+    else:
+        nav_text = "👇 Навигация:"
+
     await chat.send_message(
-        "👇 Навигация:",
+        nav_text,
         reply_markup=point_nav_inline(is_last),
     )
 
