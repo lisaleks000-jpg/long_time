@@ -660,15 +660,23 @@ async def send_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
-    
+
+    # Сначала отправляем приветственный текст
+    intro_text = (
+        "Это аудиопрогулка по Санкт-Петербургу о женщинах, чьи истории были стёрты репрессиями. "
+        "Мы пройдем 9 домов, это займет около 2-х часов. Не забудьте наушники — "
+        "некоторые голоса долго ждали, чтобы быть услышанными."
+    )
+    await chat.send_message(intro_text)
+
     if AUDIO1.exists():
         with open(AUDIO1, "rb") as f:
             await chat.send_voice(voice=f)
-    
+
     if AUDIO2.exists():
         with open(AUDIO2, "rb") as f:
             await chat.send_voice(voice=f)
-    
+
     await chat.send_message(
         WELCOME_TEXT,
         parse_mode="Markdown",
