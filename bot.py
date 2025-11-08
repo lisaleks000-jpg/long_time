@@ -739,10 +739,8 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data == CB_HEAR_VOICE_NO:
         st = _state(context)
         idx = int(st.get("idx", 0))
-        await q.message.reply_text(
-            "👇 Навигация:",
-            reply_markup=point_nav_inline(is_last=False)
-        )
+        # Переход на следующую локацию (7-я)
+        await send_point_navigation(update, context, idx + 1)
     
     elif data == CB_NEXT:
         st = _state(context)
