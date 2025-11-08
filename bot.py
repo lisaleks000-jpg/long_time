@@ -737,10 +737,11 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_point6_voice(update, context)
     
     elif data == CB_HEAR_VOICE_NO:
+        st = _state(context)
+        idx = int(st.get("idx", 0))
         await q.message.reply_text(
-            FINAL_MESSAGE,
-            parse_mode="Markdown",
-            reply_markup=final_menu_inline()
+            "👇 Навигация:",
+            reply_markup=point_nav_inline(is_last=False)
         )
     
     elif data == CB_NEXT:
