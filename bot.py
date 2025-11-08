@@ -18,6 +18,7 @@ from telegram.ext import (
 )
 
 import os
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -390,25 +391,25 @@ async def send_point_navigation(update: Update, context: ContextTypes.DEFAULT_TY
     """Отправляет адрес точки, навигационное фото (если есть) и кнопку 'Я тут'"""
     if not (0 <= idx < len(POINTS)):
         return
-    
+
     st = _state(context)
     st["idx"] = idx
     st["waiting_optional"] = False
 
     point = POINTS[idx]
     chat = update.effective_chat
-    
+
     # СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ЛОКАЦИИ 1
     if idx == 0:
         await send_point_content(update, context)
         return
-    
+
     # ДЛЯ ОСТАЛЬНЫХ ЛОКАЦИЙ
     progress = f"\n\n_Точка {idx + 1} из {len(POINTS)}_"
-    
+
     nav_photo = point.get("nav_photo")
     navigation_text = point.get("navigation", "📍 Следующая точка")
-    
+
     # 1. Навигационное фото с адресом
     if nav_photo and nav_photo.exists():
         with open(nav_photo, "rb") as f:
@@ -422,18 +423,22 @@ async def send_point_navigation(update: Update, context: ContextTypes.DEFAULT_TY
             text=navigation_text + progress,
             parse_mode="Markdown"
         )
-    
+
+    await asyncio.sleep(1)
+
     # 2. Переходное аудио (если есть)
     transition_text = point.get("transition_text")
     transition_audio = point.get("transition_audio")
-    
+
     if transition_text:
         await chat.send_message(text=transition_text)
-    
+        await asyncio.sleep(1)
+
     if transition_audio and transition_audio.exists():
         with open(transition_audio, "rb") as f:
             await chat.send_voice(voice=f)
-    
+        await asyncio.sleep(1)
+
     # 3. Кнопка "Я тут"
     await chat.send_message(
         "Дайте знать, когда доберетесь:",
@@ -459,30 +464,37 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
         if photo_path and photo_path.exists():
             with open(photo_path, "rb") as f:
                 await chat.send_photo(photo=f)
-        
+            await asyncio.sleep(1)
+
         texts = point.get("texts", [])
         if len(texts) > 0:
             await chat.send_message(text=texts[0], parse_mode="Markdown")
-        
+            await asyncio.sleep(1)
+
         audio1 = point.get("audio1")
         audio1_desc = point.get("audio1_description")
         if audio1 and audio1.exists():
             with open(audio1, "rb") as f:
                 await chat.send_voice(voice=f)
+            await asyncio.sleep(1)
             if audio1_desc:
                 await chat.send_message(text=audio1_desc, parse_mode="Markdown")
-        
+                await asyncio.sleep(1)
+
         if len(texts) > 1:
             await chat.send_message(text=texts[1], parse_mode="Markdown")
-        
+            await asyncio.sleep(1)
+
         audio2 = point.get("audio2")
         audio2_desc = point.get("audio2_description")
         if audio2 and audio2.exists():
             with open(audio2, "rb") as f:
                 await chat.send_voice(voice=f)
+            await asyncio.sleep(1)
             if audio2_desc:
                 await chat.send_message(text=audio2_desc, parse_mode="Markdown")
-        
+                await asyncio.sleep(1)
+
         await chat.send_message(
             "👇 Навигация:",
             reply_markup=point_nav_inline(is_last=False)
@@ -490,18 +502,21 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     
     # СТАНДАРТНАЯ ЛОГИКА ДЛЯ ОСТАЛЬНЫХ ЛОКАЦИЙ
-    
+
     photo_path = point.get("photo")
     if photo_path and photo_path.exists():
         with open(photo_path, "rb") as f:
             await chat.send_photo(photo=f)
+        await asyncio.sleep(1)
     elif photo_path:
         await chat.send_message(f"⚠️ Фото не найдено: {photo_path}")
-    
+        await asyncio.sleep(1)
+
     texts: List[str] = point.get("texts", [])
     for text in texts:
         await chat.send_message(text=text, parse_mode="Markdown")
-    
+        await asyncio.sleep(1)
+
     # Логика для локации 3 (узнать больше)
     if idx == 2:
         await chat.send_message(
@@ -510,41 +525,46 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
             reply_markup=want_more_buttons()
         )
         return
-    
+
     # Логика для локации 6 (голос Лидии)
     if idx == 5:
         audio_path = point.get("audio")
         audio_desc = point.get("audio_description")
-        
+
         if audio_path and audio_path.exists():
             with open(audio_path, "rb") as f:
                 await chat.send_voice(voice=f)
+            await asyncio.sleep(1)
             if audio_desc:
                 await chat.send_message(text=audio_desc, parse_mode="Markdown")
-        
+                await asyncio.sleep(1)
+
         await chat.send_message(
             "Хотите услышать ее голос?",
             reply_markup=hear_voice_buttons()
         )
         return
-    
+
     # Обычное аудио
     audio_path = point.get("audio")
     audio_desc = point.get("audio_description")
-    
+
     if audio_path and audio_path.exists():
         with open(audio_path, "rb") as f:
             await chat.send_voice(voice=f)
-        
+        await asyncio.sleep(1)
+
         if audio_desc:
             await chat.send_message(text=audio_desc, parse_mode="Markdown")
+            await asyncio.sleep(1)
     elif audio_path:
         await chat.send_message(f"⚠️ Аудио не найдено: {audio_path}")
-    
+        await asyncio.sleep(1)
+
     # Проверка на опциональное аудио (для локаций 8 и 9)
     optional_audio = point.get("optional_audio")
     optional_question = point.get("optional_question")
-    
+
     if optional_audio and optional_question:
         st["waiting_optional"] = True
         await chat.send_message(
@@ -552,7 +572,7 @@ async def send_point_content(update: Update, context: ContextTypes.DEFAULT_TYPE)
             reply_markup=want_more_buttons()
         )
         return
-    
+
     # Навигация
     is_last = (idx == len(POINTS) - 1)
     await chat.send_message(
@@ -564,19 +584,22 @@ async def send_point3_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Для локации 3 - старая логика"""
     chat = update.effective_chat
     point = POINTS[2]
-    
+
     audio_path = point.get("audio")
     audio_desc = point.get("audio_description")
-    
+
     if audio_path and audio_path.exists():
         with open(audio_path, "rb") as f:
             await chat.send_voice(voice=f)
-        
+        await asyncio.sleep(1)
+
         if audio_desc:
             await chat.send_message(text=audio_desc, parse_mode="Markdown")
+            await asyncio.sleep(1)
     else:
         await chat.send_message(f"⚠️ Аудио не найдено: {audio_path}")
-    
+        await asyncio.sleep(1)
+
     await chat.send_message(
         "👇 Навигация:",
         reply_markup=point_nav_inline(is_last=False)
@@ -586,21 +609,22 @@ async def send_optional_audio(update: Update, context: ContextTypes.DEFAULT_TYPE
     """Отправляет опциональное аудио для локаций 8 и 9"""
     st = _state(context)
     idx = int(st.get("idx", 0))
-    
+
     if not (0 <= idx < len(POINTS)):
         return
-    
+
     point = POINTS[idx]
     chat = update.effective_chat
-    
+
     optional_audio = point.get("optional_audio")
-    
+
     if optional_audio and optional_audio.exists():
         with open(optional_audio, "rb") as f:
             await chat.send_voice(voice=f)
-    
+        await asyncio.sleep(1)
+
     st["waiting_optional"] = False
-    
+
     is_last = (idx == len(POINTS) - 1)
     await chat.send_message(
         "👇 Навигация:",
@@ -610,19 +634,22 @@ async def send_optional_audio(update: Update, context: ContextTypes.DEFAULT_TYPE
 async def send_point6_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     point = POINTS[5]
-    
+
     extra_audio = point.get("extra_audio")
     extra_desc = point.get("extra_audio_description")
-    
+
     if extra_audio and extra_audio.exists():
         with open(extra_audio, "rb") as f:
             await chat.send_voice(voice=f)
-        
+        await asyncio.sleep(1)
+
         if extra_desc:
             await chat.send_message(text=extra_desc, parse_mode="Markdown")
+            await asyncio.sleep(1)
     else:
         await chat.send_message(f"⚠️ Аудио не найдено: {extra_audio}")
-    
+        await asyncio.sleep(1)
+
     await chat.send_message(
         "👇 Навигация:",
         reply_markup=point_nav_inline(is_last=False)
@@ -631,19 +658,22 @@ async def send_point6_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def send_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Отправляет финальное сообщение с аудио, текстом и файлом"""
     chat = update.effective_chat
-    
+
     # 1. Финальное аудио
     if FINAL_AUDIO.exists():
         await chat.send_message("Наш маршрут подошел к завершению. Прослушайте финальные записи")
+        await asyncio.sleep(1)
         with open(FINAL_AUDIO, "rb") as f:
             await chat.send_voice(voice=f)
-    
-    # 2. Финальный текст  
+        await asyncio.sleep(1)
+
+    # 2. Финальный текст
     await chat.send_message(
         FINAL_TEXT,
         parse_mode="Markdown"
     )
-    
+    await asyncio.sleep(1)
+
     # 3. Файл с материалами
     if FINAL_MATERIALS.exists():
         with open(FINAL_MATERIALS, "rb") as f:
@@ -651,7 +681,8 @@ async def send_final(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 document=f,
                 caption="📎 Дополнительные материалы и тексты писем"
             )
-    
+        await asyncio.sleep(1)
+
     # 4. Меню
     await chat.send_message(
         "Команда проекта, это было давно!",
@@ -668,14 +699,17 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Не забудьте наушники — некоторые голоса долго ждали, чтобы быть услышанными."
     )
     await chat.send_message(intro_text)
+    await asyncio.sleep(1)
 
     if AUDIO1.exists():
         with open(AUDIO1, "rb") as f:
             await chat.send_voice(voice=f)
+        await asyncio.sleep(1)
 
     if AUDIO2.exists():
         with open(AUDIO2, "rb") as f:
             await chat.send_voice(voice=f)
+        await asyncio.sleep(1)
 
     await chat.send_message(
         WELCOME_TEXT,
